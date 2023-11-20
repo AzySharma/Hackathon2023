@@ -10,5 +10,8 @@ namespace Gamification.Config
         public string Key { get; set; }
         public string DatabaseName { get; set; }
         public string RewardsContainer { get; set; }
+
+        public string CustomersContainer { get; set; }
+
     }
 }
