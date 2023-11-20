@@ -28,11 +28,38 @@ namespace Gamification.Controllers
             return await _rewardRepository.GetAllReward(); 
         }
 
+        [HttpGet]
+        [Route("id/{id}")]
+        public async Task<Reward> GetById(string id)
+        {
+            return await _rewardRepository.GetRewardById(id);
+        }
+
+        [HttpGet]
+        [Route("code/{code}")]
+        public async Task<Reward> GetByCode(string code)
+        {
+            return await _rewardRepository.GetRewardByCode(code); 
+        }
+
         [HttpPost]
         public async Task<List<Reward>> Post([FromBody] Reward reward)
         {
             await _rewardRepository.AddReward(reward);
             return await _rewardRepository.GetAllReward(); 
+        }
+
+        [HttpPut]
+        public async Task<Reward> UpdateReward([FromBody] Reward reward)
+        {
+            return await _rewardRepository.EditReward(reward);
+             
+        }
+
+        [HttpDelete("{id}")]
+        public async Task DeleteReward(string id)
+        {
+            await _rewardRepository.DeleteReward(id);
         }
     }
 }
