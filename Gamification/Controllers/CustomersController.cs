@@ -17,24 +17,45 @@ namespace Gamification.Controllers
             return View();
         }
 
-        [HttpGet(Name ="GetCustomers")]
+        [HttpGet]
         public async Task<List<Customer>> Get()
         {
             return await _customerRepository.GetAllCustomer();
         }
 
-        [HttpPost(Name ="CreateCustomer")]
+        [HttpPost]
         public async Task<List<Customer>> CreateCustomer([FromBody] Customer customer)
         {
             await _customerRepository.AddCustomer(customer);
             return await _customerRepository.GetAllCustomer();
         }
 
-        [HttpDelete(Name = "DeleteCustomer")]
-        public async Task<List<Customer>> DeleteCustomer([FromBody] Customer customer)
+        [HttpDelete("{id}")]
+        public async Task DeleteCustomer(string id)
         {
-            await _customerRepository.DeleteCustomer(customer);
-            return await _customerRepository.GetAllCustomer();
+            await _customerRepository.DeleteCustomer(id);            
+        }
+
+        [HttpPut]
+        public async Task<Customer> UpdateReward([FromBody] Customer customer)
+        {
+            return await _customerRepository.EditCustomer(customer);
+        }
+
+
+        [HttpGet]
+        [Route("id/{id}")]
+        public async Task<Customer> GetById(string id)
+        {
+            return await _customerRepository.GetCustomerById(id);
+        }
+
+
+        [HttpGet]
+        [Route("name/{name}")]
+        public async Task<Customer> GetCustomerByName(string name)
+        {
+            return await _customerRepository.GetCustomerByName(name);
         }
     }
 }

@@ -17,12 +17,12 @@ namespace Gamification.Repositories
 
         public async Task<Customer> AddCustomer(Customer customer)
         {
-            return await _customercontainer.CreateItemAsync<Customer>(customer, new PartitionKey(customer.CustomerId));
+            return await _customercontainer.CreateItemAsync<Customer>(customer, new PartitionKey(customer.id));
         }
 
-        public async Task DeleteCustomer(Customer customer)
+        public async Task DeleteCustomer(string id)
         {
-            await _customercontainer.DeleteItemAsync<Customer>(customer.CustomerId.ToString(), new PartitionKey(customer.Name));
+            await _customercontainer.DeleteItemAsync<Customer>(id.ToString(), new PartitionKey(id));            
         }
 
         public async Task<List<Customer>> GetAllCustomer()
@@ -44,12 +44,42 @@ namespace Gamification.Repositories
                 }
             }
             return customers;
+        }       
+
+        private void PatchIfNotNull<TVal>(
+            List<PatchOperation> patchOperations,
+            string fieldName,
+            TVal val)
+        {
+            if (val != null)
+            {
+                patchOperations.Add(PatchOperation.Set(fieldName, val));
+            }
         }
 
-        public async Task<List<Customer>> GetCustomerByCity(string city)
+        public async Task<Customer> EditCustomer(Customer customer)
         {
+            var patchOperations = new List<PatchOperation>();            
+            PatchIfNotNull(patchOperations, "/name", customer.Name);
+            PatchIfNotNull(patchOperations, "/email", customer.Email);
+            PatchIfNotNull(patchOperations, "/address", customer.Address);
+            PatchIfNotNull(patchOperations, "/phonenumber", customer.PhoneNumber);
+
+            var result = await _customercontainer.PatchItemAsync<dynamic>(
+                customer.id,
+                new PartitionKey(customer.id),
+                patchOperations
+            );
+
+            return await GetCustomerById(customer.id);
+        }
+
+        public async Task<Customer> GetCustomerById(string id)
+        {
+            var query = $"SELECT * FROM Customers where Customers.id = '{id}'";
+
             using FeedIterator<Customer> feed = _customercontainer.GetItemQueryIterator<Customer>(
-                    queryText: "SELECT * FROM Customers"
+                    queryText: query
             );
 
             var customers = new List<Customer>();
@@ -58,13 +88,36 @@ namespace Gamification.Repositories
                 FeedResponse<Customer> response = await feed.ReadNextAsync();
 
                 // Iterate query results
-                foreach (Customer customer in response)
+                foreach (Customer item in response)
                 {
-                    customers.Add(customer);
-                    Console.WriteLine($"Found customer:\t{customer.Name}");
+                    customers.Add(item);
+                    Console.WriteLine($"Found item:\t{item.Name}");
                 }
             }
-            return customers;
+            return customers?.FirstOrDefault();
+        }
+
+        public async Task<Customer> GetCustomerByName(string name)
+        {
+            var query = $"SELECT * FROM Customers where Customers.name = '{name}'";
+
+            using FeedIterator<Customer> feed = _customercontainer.GetItemQueryIterator<Customer>(
+                    queryText: query
+            );
+
+            var customers = new List<Customer>();
+            while (feed.HasMoreResults)
+            {
+                FeedResponse<Customer> response = await feed.ReadNextAsync();
+
+                // Iterate query results
+                foreach (Customer item in response)
+                {
+                    customers.Add(item);
+                    Console.WriteLine($"Found item:\t{item.Name}");
+                }
+            }
+            return customers?.FirstOrDefault();
         }
     }
 }
