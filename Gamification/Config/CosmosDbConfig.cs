@@ -12,6 +12,7 @@ namespace Gamification.Config
         public string RewardsContainer { get; set; }
 
         public string CustomersContainer { get; set; }
+        public string OrdersContainer { get; set; }
 
     }
 }

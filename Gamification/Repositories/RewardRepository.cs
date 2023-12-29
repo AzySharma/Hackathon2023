@@ -82,7 +82,7 @@ namespace Gamification.Repositories
         public async Task<Reward> GetRewardByCode(string code)
         {
             using FeedIterator<Reward> feed = _rewardsContainer.GetItemQueryIterator<Reward>(
-                    queryText: $"SELECT * FROM Rewards where Rewards.code = {code}"
+                    queryText: $"SELECT * FROM Rewards where Rewards.code = '{code}'"
             );
 
             var rewards = new List<Reward>();

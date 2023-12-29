@@ -13,6 +13,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<IDbContext, DBContext>();
 builder.Services.AddSingleton<IRewardRepository, RewardRepository>();
 builder.Services.AddSingleton<ICustomerRepository, CustomerRepository>();
+builder.Services.AddSingleton<IOrderRepository, OrderRepository>();
 
 //TBD -- move it to Registrator
 builder.Services.AddOptions<CosmosDbConfig>()
